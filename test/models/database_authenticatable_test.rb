@@ -134,6 +134,13 @@ class DatabaseAuthenticatableTest < ActiveSupport::TestCase
     assert_match "can't be blank", user.errors[:current_password].join
   end
 
+  test 'should not update password with invalid confirmation capitalization' do
+    user = create_user
+    assert_not user.update_with_password(:current_password => '12345678',
+      :password => 'pass4321', :password_confirmation => 'Pass4321')
+    assert user.reload.valid_password?('12345678')
+  end
+
   test 'should run validations even when current password is invalid or blank' do
     user = UserWithValidation.create!(valid_attributes)
     user.save
